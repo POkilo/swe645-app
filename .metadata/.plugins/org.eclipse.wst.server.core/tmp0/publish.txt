@@ -1,0 +1,4 @@
+#Tomcat publish data
+#Fri May 01 03:04:51 EDT 2020
+org.eclipse.jst.jee.server\:swe645-restful-api=/usr/local/apache-tomcat-7.0.99/wtpwebapps/swe645-restful-api
+org.eclipse.jst.jee.server\:hw2=/usr/local/apache-tomcat-7.0.99/wtpwebapps/hw2

@@ -1,0 +1,97 @@
+pipeline {
+    environment {
+        registryCredential = 'dockerhub'
+        registryRestful = "swe645docker/restful"
+        dockerImageRestful = ''
+        registryApp = "swe645docker/swe645-app"
+        dockerImageApp = ''
+        
+    }
+    agent any
+    
+    stages {
+        stage('Cloning Git') {
+            steps{
+                git 'https://github.com/JuliaHsu/SWE645-group-project.git'
+                
+            }
+        }
+
+        stage('backend') {
+            steps {
+                echo 'building backend..'
+                script {
+                    withAnt(installation: 'Ant1.10.7') {
+                        sh'''
+                        #!/bin/bash
+                        cd ~/workspace/swe645-app/hw3/swe645-restful-api
+                        ls
+                        ant war
+                        cd ~/workspace/swe645-app/hw3/
+                        ls
+                        '''
+                }
+                  dockerImageRestful = docker.build(registryRestful + ":$BUILD_NUMBER","./hw3")
+                }
+
+            }
+        }
+
+        stage('frontend') {
+            steps {
+                echo 'building frontend..'
+                script {
+                  sh'''
+                        #!/bin/bash
+                        cp -r ~/workspace/node_modules  ~/workspace/swe645-app/hw3/swe645-app
+                        cd ~/workspace/swe645-app/hw3/swe645-app
+                        ls
+                    '''
+                  dockerImageApp = docker.build(registryApp + ":$BUILD_NUMBER","./hw3/swe645-app")
+                }
+
+            }
+        }
+
+        stage('Test') {
+            steps {
+                echo 'Testing..'
+            }
+        }
+        stage('Deploy') {
+            steps {
+                echo 'Deploying....'
+            }
+        }
+
+        stage('Deploy Image') {
+            steps{
+                script{
+                    docker.withRegistry('',registryCredential){
+                        sh 'docker push $registryRestful:$BUILD_NUMBER'
+                        sh 'docker push $registryApp:$BUILD_NUMBER'
+                    }
+                }
+            }
+        }
+		
+		stage('redeploy') {
+            steps{
+               
+               sh'''
+               #!/bin/bash
+                sudo -s source /etc/environment
+                kubectl --kubeconfig /home/ubuntu/.kube/config set image deployment frontend nginx=swe645docker/swe645-app:$BUILD_NUMBER
+				kubectl --kubeconfig /home/ubuntu/.kube/config set image deployment restful  restful=swe645docker/restful:$BUILD_NUMBER
+				docker image rm swe645docker/swe645-app:$BUILD_NUMBER
+				docker image rm swe645docker/restful:$BUILD_NUMBER
+				
+			'''
+            }
+        }
+		
+    }
+
+     
+}
+

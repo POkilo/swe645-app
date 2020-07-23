@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;swe645_group&apos; to &apos;swe645-group&apos;" description="Rename resource &apos;swe645_group&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="/swe645_group" name="swe645-group" stamp="1584293263633" updateReferences="true"/>
+</session>
